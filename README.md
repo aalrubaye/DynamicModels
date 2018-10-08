@@ -49,7 +49,7 @@ watch it here (https://www.youtube.com/watch?v=PdDxDyJ1jAs)
 then run the code. (whatch it here https://www.youtube.com/watch?v=OxoUVXRHVuI&feature=youtu.be)
 
 
-Initially the number of steps are limited to 5000, you can change it by updateing the variable "limit" on line 22.
-The execution time will be ~31 second (2.3 intel core i7, memory 16 GB), but this will be changed once the limit var is changed as well.
+Initially the number of steps are limited to 5000, you can change it by updating the variable "limit" on line 22.
+(The execution time will be ~31 second 2.3 intel core i7, memory 16 GB), but this will be changed once the limit var is changed as well)
 
-Once it finished the process it brings up another window including all 3 figures regarding the growth of number of nodes and edges plus the culumative degree distribution.
+Once it finished the process it brings up another window including all 3 figures regarding the growth of number of nodes and edges plus the cumulative degree distribution.
