@@ -204,21 +204,38 @@ def process(prob):
     print ('*'*40)
     en = expected_nodes(prob, len(steps))
     scatter_steps, scatter_number_of_nodes = create_scatter(number_of_nods, space_between_ticks)
-    plt.plot(scatter_steps, scatter_number_of_nodes, '^')
+    if prob == p[0]:
+        mrkr = 'D'
+        lbl = 'P='+str(prob)
+    if prob == p[1]:
+        mrkr = 's'
+        lbl = 'P='+str(prob)
+    if prob == p[2]:
+        mrkr = '^'
+        lbl = 'P='+str(prob)
+
+    plt.plot(scatter_steps, scatter_number_of_nodes, mrkr, markersize=10, mfc='none', label =lbl)
     plt.plot(steps, en, '-')
 
 
 # The main function
 if __name__ == "__main__":
-    space_between_ticks = 100
+    space_between_ticks = limit/10
+    plt.figure(figsize=(16,10))
+
     plt.xticks(np.arange(0, limit, step=space_between_ticks))
+
+
+    plt.subplot(2, 2, 1)
+    plt.xlabel('t', fontsize=18)
+    plt.ylabel('E[n_t]', fontsize=16)
+    plt.title('Growth in # of nodes')
 
     process(p[0])
     process(p[1])
     process(p[2])
 
+    plt.legend(loc='upper left', numpoints=1)
     plt.show()
-
-
 
 
