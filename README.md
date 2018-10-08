@@ -38,7 +38,7 @@ You might need to install mpmath
 For more information please visit https://github.com/jeffalstott/powerlaw
     
 ## Running the code:
-To run the code you can do eather one:
+To run the code you can do either one:
 - via terminal/shell by getting into the directory of the code then 
 ```
     python DynamicModel.py
