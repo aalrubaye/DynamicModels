@@ -18,18 +18,17 @@ graph = Graph()
 nodes = []
 nodes_index = 0
 steps_counter = 0
-limit = 10
+limit = 1000
 pq = []
 p = [0.6, 0.75, 0.9]
 t_steps = []
 n_counts = []
 
-
 # initializes a graph with a given probability p
-def initialize_graph(p):
-    global pq
+def initialize_graph(prob):
+    global pq, fig_2_steps, fig_2_p_60, fig_2_p_75, fig_2_p_90
 
-    pq = [p, 1-p]
+    pq = [prob, 1-prob]
 
     # started with creating two nodes to prevent a self edge
     add_node(0)
@@ -40,17 +39,35 @@ def initialize_graph(p):
     for i in range(0, limit):
         next_process()
 
+    print('*'*20)
+    print len(t_steps)
+    print len(n_counts)
+    print t_steps
+    print n_counts
+
+    # fig_2_steps = t_steps
+    # if prob == p[0]:
+    #     fig_2_p_60 = n_counts
+    # if prob ==p[1]:
+    #     fig_2_p_75 = n_counts
+    # else:
+    #     fig_2_p_90 = n_counts
+
+    stp = t_steps
+    fig = n_counts
     reset_graph()
+    return stp, fig
 
 
 # reset the graph and other related parameters
 def reset_graph():
-    global nodes_index, steps_counter, nodes, n_counts
+    global nodes_index, steps_counter, nodes, n_counts, t_steps
     graph.delete_vertices(graph.vs)
     nodes_index = 0
     steps_counter = 0
     nodes = []
     n_counts = []
+    t_steps = []
 
 
 # The implementation of birth process
@@ -67,9 +84,6 @@ def birth_process():
 
     # add the new edge
     graph.add_edge(str(new_node_index), str(nodes[preferential_node]))
-
-    # # print steps_t
-    # print steps_counter
 
 
 # The implementation of death process
@@ -97,7 +111,7 @@ def add_node(index):
     t_steps.append(steps_counter)
     n_counts.append(graph.vcount())
 
-    print ('step = ', steps_counter,'-> # nodes ', graph.vcount())
+    print 'step =', steps_counter,' --> Birth '
 
 
 # procedure to remove a node from the graph and from the index array
@@ -110,17 +124,14 @@ def remove_node(index):
     t_steps.append(steps_counter)
     n_counts.append(graph.vcount())
 
-    print ('step = ', steps_counter,'-> # nodes ', graph.vcount())
+    print 'step =', steps_counter,' --> Death '
 
 
 # Figuring out the next process to take
 def next_process():
-    # pq = [p[2], 1-p[2]]
     if weighted_random_node(pq) == 0:
-        print ('next process => birth')
         birth_process()
     else:
-        print ('next process => death')
         death_process()
 
 
@@ -159,16 +170,55 @@ def weighted_random_node(add_prob_list):
     return rand
 
 
+# calculated the expected nodes count
+def expected_nodes(prob, steps):
+    en = []
+    for i in range(0, steps):
+        en.append(((prob-(1-prob))*i)+(2*(1-prob)))
+    return en
+
+
+# Prepares the data to be plotted as scatter
+def create_scatter(list, rng):
+    s = 0
+    k = 0
+    ind = rng/2
+    new = []
+    step_line = []
+    for i in range (0, len(list)):
+        s += list[i]
+        k += 1
+        if k == rng:
+            step_line.append(ind)
+            new.append(float(s/rng))
+            k = 0
+            s = 0
+            ind += rng
+
+    return step_line, new
+
+
+# calls all other functions to calculate and prepare data for plotting
+def process(prob):
+    steps, number_of_nods = initialize_graph(prob)
+    print ('*'*40)
+    en = expected_nodes(prob, len(steps))
+    scatter_steps, scatter_number_of_nodes = create_scatter(number_of_nods, space_between_ticks)
+    plt.plot(scatter_steps, scatter_number_of_nodes, '^')
+    plt.plot(steps, en, '-')
+
+
 # The main function
 if __name__ == "__main__":
+    space_between_ticks = 100
+    plt.xticks(np.arange(0, limit, step=space_between_ticks))
 
-    initialize_graph(p[0])
-    print ('*'*40)
-    initialize_graph(p[1])
-    print ('*'*40)
-    initialize_graph(p[2])
-    # plt.plot([1,2,3,4], [1,4,9,16], 'ro')
-    # plt.axis([0, 6, 0, 20])
-    # plt.show()
+    process(p[0])
+    process(p[1])
+    process(p[2])
+
+    plt.show()
+
+
 
 
