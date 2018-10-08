@@ -1,29 +1,66 @@
 __author__ = 'Abdul Rubaye'
 from igraph import *
 import numpy as np
+import matplotlib.pyplot as plt
+
+# Notes:
+# graph: the instance of the generated graph
+# nodes: a list of all the existing nodes in graph
+# nodes_index: pointing to the index of next node to be injected
+# steps_counter: a counter for the taken steps (Birth & Death processes)
+# limit: the total number of steps will be taken place
+# pq: a list that will be used to define the P and Q probabilities. used in equations 1 and 2
+# p: a list of all p used
+# t_steps: a list of the steps we take. Used in plotting the final figures
+# n_counts: a list of the node counts. Used in plotting the final figures
 
 graph = Graph()
 nodes = []
-nodes_count = 0
-ii = 0
-pq = [0.5, 0.5]
-steps_t = 0
-limit = 10000
+nodes_index = 0
+steps_counter = 0
+limit = 10
+pq = []
+p = [0.6, 0.75, 0.9]
+t_steps = []
+n_counts = []
+
+
+# initializes a graph with a given probability p
+def initialize_graph(p):
+    global pq
+
+    pq = [p, 1-p]
+
+    # started with creating two nodes to prevent a self edge
+    add_node(0)
+    add_node(1)
+
+    graph.add_edge(str(0), str(1))
+
+    for i in range(0, limit):
+        next_process()
+
+    reset_graph()
+
+
+# reset the graph and other related parameters
+def reset_graph():
+    global nodes_index, steps_counter, nodes, n_counts
+    graph.delete_vertices(graph.vs)
+    nodes_index = 0
+    steps_counter = 0
+    nodes = []
+    n_counts = []
+
 
 # The implementation of birth process
 def birth_process():
-
-    global steps_t,nodes_count
-
     # creating a list of nodes probability for process_type = 1 (birth)
     add_prob_list = nodes_probs(1)
 
     # creating a new node
-    new_node_index = nodes_count
-    nodes_count += 1
+    new_node_index = nodes_index
     add_node(new_node_index)
-
-    steps_t += 1
 
     # finding the preferential node that will be connected to the new node
     preferential_node = weighted_random_node(add_prob_list)
@@ -31,19 +68,12 @@ def birth_process():
     # add the new edge
     graph.add_edge(str(new_node_index), str(nodes[preferential_node]))
 
-    # print preferential_node
-    # print graph.vs['name']
-    # print nodes
-    # print graph.get_edgelist()
-    # print ('*'*20)
-
-    # print steps_t
-    print (str(steps_t),'->',str(graph.vcount()))
+    # # print steps_t
+    # print steps_counter
 
 
 # The implementation of death process
 def death_process():
-    global steps_t
     if graph.vcount() > 0:
         # creating a list of nodes probability for process_type = 2 (death)
         deletion_prob_list = nodes_probs(2)
@@ -51,16 +81,6 @@ def death_process():
         # finding the preferential node that will be removed from the graph
         preferential_node = weighted_random_node(deletion_prob_list)
         remove_node(preferential_node)
-        #
-        # print preferential_node
-        # print graph.vs['name']
-        # print nodes
-        # print graph.get_edgelist()
-        # print ('*'*20)
-
-        steps_t += 1
-
-        print (str(steps_t),'->',str(graph.vcount()))
 
     else:
         print ('the network is vanished')
@@ -68,25 +88,39 @@ def death_process():
 
 # procedure to add a node to the graph and to the index array
 def add_node(index):
+    global steps_counter, nodes_index
+
     graph.add_vertex(name=str(index))
-    # self.graph.add_node(index)
     nodes.append(index)
+    steps_counter += 1
+    nodes_index += 1
+    t_steps.append(steps_counter)
+    n_counts.append(graph.vcount())
+
+    print ('step = ', steps_counter,'-> # nodes ', graph.vcount())
 
 
 # procedure to remove a node from the graph and from the index array
 def remove_node(index):
-    # self.graph.delete_vertices(self.nodes[index])
+    global steps_counter, nodes_index
+
     graph.delete_vertices(index)
     nodes.remove(nodes[index])
+    steps_counter += 1
+    t_steps.append(steps_counter)
+    n_counts.append(graph.vcount())
+
+    print ('step = ', steps_counter,'-> # nodes ', graph.vcount())
 
 
 # Figuring out the next process to take
 def next_process():
+    # pq = [p[2], 1-p[2]]
     if weighted_random_node(pq) == 0:
-        # print ('next process => birth')
+        print ('next process => birth')
         birth_process()
     else:
-        # print ('next process => death')
+        print ('next process => death')
         death_process()
 
 
@@ -127,21 +161,14 @@ def weighted_random_node(add_prob_list):
 
 # The main function
 if __name__ == "__main__":
-    # started with creating two nodes to prevent a self edge
-    add_node(0)
-    add_node(1)
 
-    graph.add_edge(str(0), str(1))
-    nodes_count = graph.vcount()
-    #
-    # print graph.vs['name']
-    # print nodes
-    # print graph.get_edgelist()
-    # print ('*'*20)
+    initialize_graph(p[0])
+    print ('*'*40)
+    initialize_graph(p[1])
+    print ('*'*40)
+    initialize_graph(p[2])
+    # plt.plot([1,2,3,4], [1,4,9,16], 'ro')
+    # plt.axis([0, 6, 0, 20])
+    # plt.show()
 
-    steps_t += 1
-    print steps_t
-
-    for i in range (0, limit):
-        next_process()
 
